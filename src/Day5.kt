@@ -8,7 +8,7 @@ private val input = File("input-5.txt").readText()
 fun main() {
     var machine = Machine(input)
     machine.run()
-    println(machine.instructions[0])
+    println(machine.memory[0])
 
 }
 
