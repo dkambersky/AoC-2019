@@ -4,6 +4,7 @@ import intcode.Mode.IMMEDIATE
 import intcode.Mode.POSITION
 import intcode.Operation.*
 import java.lang.IllegalArgumentException
+import java.lang.NumberFormatException
 
 class Machine(input: String) {
     private fun processInput(input: String) = input
@@ -28,6 +29,11 @@ class Machine(input: String) {
             HALT -> return false
             ADD -> setVal(par[2], par[0] + par[1])
             MULTIPLY -> setVal(par[2], par[0] * par[1])
+            INPUT -> setVal(
+                par[0], readLine()?.toLongOrNull()
+                    ?: throw NumberFormatException("Please enter an int!")
+            )
+            OUTPUT -> println(par[0])
         }
 
         instPointer += instruction.operation.length()
@@ -84,7 +90,9 @@ enum class Operation(
 ) {
     HALT(99),
     ADD(1, listOf(false, false, true)),
-    MULTIPLY(2, listOf(false, false, true));
+    MULTIPLY(2, listOf(false, false, true)),
+    INPUT(3, listOf(true)),
+    OUTPUT(4, listOf(false));
 
     fun length() = parameters.size + 1
 

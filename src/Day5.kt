@@ -6,9 +6,10 @@ private val input = File("input-5.txt").readText()
 
 
 fun main() {
-    var machine = Machine(input)
-    machine.run()
-    println(machine.memory[0])
+    // The bulk of this day's work is in the Machine class
+    Machine(input).apply {
+        run()
+    }
 
 }
 
