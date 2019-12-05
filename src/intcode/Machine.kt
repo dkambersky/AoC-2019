@@ -24,6 +24,7 @@ class Machine(input: String) {
     private fun step(): Boolean {
         val instruction = Instruction.construct(memory, instPointer)
         val par = instruction.parameters
+        val ptr = instPointer
 
         when (instruction.operation) {
             HALT -> return false
@@ -34,18 +35,17 @@ class Machine(input: String) {
                     ?: throw NumberFormatException("Please enter an int!")
             )
             OUTPUT -> println(par[0])
+            JUMP_IF_TRUE -> if (par[0] != 0L) instPointer = par[1].toInt()
+            JUMP_IF_FALSE -> if (par[0] == 0L) instPointer = par[1].toInt()
+            LESS_THAN -> setVal(par[2], if (par[0] < par[1]) 1L else 0L)
+            EQUALS -> setVal(par[2], if (par[0] == par[1]) 1L else 0L)
         }
 
-        instPointer += instruction.operation.length()
+        if (instPointer == ptr)
+            instPointer += instruction.operation.length()
+
         return true
     }
-
-    private fun getVal(pos: Int): Long = memory[memory[pos].toInt()]
-
-    private fun setVal(pos: Int, value: Long) {
-        memory[pos] = value
-    }
-
     private fun setVal(pos: Long, value: Long) {
         memory[pos.toInt()] = value
     }
@@ -75,12 +75,9 @@ class Instruction(val operation: Operation, val parameters: List<Long>) {
                     POSITION -> memory[memory[pos + j].toInt()]
                 }
             }
-
             return Instruction(operation, parameters)
-
         }
     }
-
 }
 
 
@@ -92,7 +89,12 @@ enum class Operation(
     ADD(1, listOf(false, false, true)),
     MULTIPLY(2, listOf(false, false, true)),
     INPUT(3, listOf(true)),
-    OUTPUT(4, listOf(false));
+    OUTPUT(4, listOf(false)),
+    JUMP_IF_TRUE(5, listOf(false, false)),
+    JUMP_IF_FALSE(6, listOf(false, false)),
+    LESS_THAN(7, listOf(false, false, true)),
+    EQUALS(8, listOf(false, false, true));
+
 
     fun length() = parameters.size + 1
 
