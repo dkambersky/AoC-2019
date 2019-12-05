@@ -1,6 +1,5 @@
+import intcode.Machine
 import java.io.File
-import java.lang.Exception
-import kotlin.math.max
 
 
 private val input = File("input-2.txt").readText()
