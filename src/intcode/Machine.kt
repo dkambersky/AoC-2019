@@ -24,16 +24,10 @@ class Machine(input: String) {
         val instruction = Instruction.construct(memory, instPointer)
         val par = instruction.parameters
 
-
-//        println("INST ${instruction.operation} ${instruction.operation.length()} | $instPointer")
         when (instruction.operation) {
             HALT -> return false
-            ADD -> {
-//                println("Writing to ${par[2]}")
-                setVal(par[2], par[0] + par[1])
-            }
+            ADD -> setVal(par[2], par[0] + par[1])
             MULTIPLY -> setVal(par[2], par[0] * par[1])
-            else -> throw Exception("WTF")
         }
 
         instPointer += instruction.operation.length()
@@ -58,19 +52,15 @@ class Instruction(val operation: Operation, val parameters: List<Long>) {
         fun construct(memory: List<Long>, pos: Int): Instruction {
             val input = memory[pos]
             val ints = input.toString().map { it.toString().toInt() }
-//
-//            println(input)
-//            println(ints)
             val operation = Operation.byOpcode(ints.takeLast(2).mergeInts())
             val modes = ints.dropLast(2).reversed().toMutableList()
             modes.addAll(generateSequence { 0 }.take(operation.parameters.size - modes.size))
 
 
             val parameters = modes.mapIndexed { i, num ->
-                val j = i+1
+                val j = i + 1
                 // Output always position mode
                 if (operation.parameters[i]) {
-//                    println("$i || $j || $pos ${memory[pos+j]}")
                     return@mapIndexed memory[pos + j]
                 }
 
