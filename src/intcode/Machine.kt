@@ -46,6 +46,7 @@ class Machine(input: String) {
 
         return true
     }
+
     private fun setVal(pos: Long, value: Long) {
         memory[pos.toInt()] = value
     }
@@ -60,13 +61,14 @@ class Instruction(val operation: Operation, val parameters: List<Long>) {
             val ints = input.toString().map { it.toString().toInt() }
             val operation = Operation.byOpcode(ints.takeLast(2).mergeInts())
             val modes = ints.dropLast(2).reversed().toMutableList()
-            modes.addAll(generateSequence { 0 }.take(operation.parameters.size - modes.size))
+            modes.addAll(generateSequence { 0 }.take(operation.parameters().size - modes.size))
 
-
+            val io = operation.parameters()
             val parameters = modes.mapIndexed { i, num ->
                 val j = i + 1
                 // Output always position mode
-                if (operation.parameters[i]) {
+
+                if (io[i]) {
                     return@mapIndexed memory[pos + j]
                 }
 
@@ -83,20 +85,21 @@ class Instruction(val operation: Operation, val parameters: List<Long>) {
 
 enum class Operation(
     val code: Int,
-    val parameters: List<Boolean> = listOf()
+    private val parameters: String = ""
 ) {
     HALT(99),
-    ADD(1, listOf(false, false, true)),
-    MULTIPLY(2, listOf(false, false, true)),
-    INPUT(3, listOf(true)),
-    OUTPUT(4, listOf(false)),
-    JUMP_IF_TRUE(5, listOf(false, false)),
-    JUMP_IF_FALSE(6, listOf(false, false)),
-    LESS_THAN(7, listOf(false, false, true)),
-    EQUALS(8, listOf(false, false, true));
+    ADD(1, "IIO"),
+    MULTIPLY(2, "IIO"),
+    INPUT(3, "O"),
+    OUTPUT(4, "I"),
+    JUMP_IF_TRUE(5, "II"),
+    JUMP_IF_FALSE(6, "II"),
+    LESS_THAN(7, "IIO"),
+    EQUALS(8, "IIO");
 
 
-    fun length() = parameters.size + 1
+    fun length() = parameters.length + 1
+    fun parameters() = parameters.toModes()
 
     companion object {
         fun byOpcode(code: Int) = values().firstOrNull { it.code == code }
@@ -106,6 +109,15 @@ enum class Operation(
 
 
 fun List<Int>.mergeInts() = joinToString("").toInt()
+fun String.toModes(): List<Boolean> {
+    return map {
+        when (it) {
+            'I' -> false
+            'O' -> true
+            else -> false
+        }
+    }
+}
 
 enum class Mode {
     POSITION,
