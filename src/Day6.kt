@@ -12,7 +12,6 @@ fun main() {
     val sum = edges.keys.sumBy { path(it).size - 1 }
     val path = path("SAN") symmetricDifference path("YOU")
 
-
     println(sum)
     println(path.size - 2)
 }
