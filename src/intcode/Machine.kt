@@ -6,14 +6,19 @@ import intcode.Operation.*
 import java.lang.IllegalArgumentException
 import java.lang.NumberFormatException
 
-class Machine(input: String) {
+class Machine(
+    input: String,
+    private val inputs: List<Int>? = null
+) {
     private fun processInput(input: String) = input
         .splitToSequence(",")
         .map { it.toLong() }
         .toMutableList()
 
     var memory = processInput(input)
+    var inputRead = 0
     var instPointer = 0
+    var outputs = mutableListOf<Long>()
 
     fun run() {
         while (step()) {
@@ -30,11 +35,11 @@ class Machine(input: String) {
             HALT -> return false
             ADD -> setVal(par[2], par[0] + par[1])
             MULTIPLY -> setVal(par[2], par[0] * par[1])
-            INPUT -> setVal(
-                par[0], readLine()?.toLongOrNull()
-                    ?: throw NumberFormatException("Please enter an int!")
-            )
-            OUTPUT -> println(par[0])
+            INPUT -> {
+                setVal(par[0], inputs?.get(inputRead)?.toLong()!!)
+                inputRead++
+            }
+            OUTPUT -> outputs.add(par[0])
             JUMP_IF_TRUE -> if (par[0] != 0L) instPointer = par[1].toInt()
             JUMP_IF_FALSE -> if (par[0] == 0L) instPointer = par[1].toInt()
             LESS_THAN -> setVal(par[2], if (par[0] < par[1]) 1L else 0L)
