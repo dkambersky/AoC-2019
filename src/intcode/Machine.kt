@@ -19,7 +19,6 @@ class Machine(
     val inputs = mutableListOf<Long>()
     var inputRead = 0
     var instPointer = 0
-    var outputs = mutableListOf<Long>()
     val outputCallbacks = mutableListOf<(Long) -> Unit>()
 
     suspend fun run() {
@@ -33,13 +32,12 @@ class Machine(
         val par = instruction.parameters
         val ptr = instPointer
 
-//        println("Step - $id")
         when (instruction.operation) {
-            HALT -> {/*println("$id halting.");*/return false }
+            HALT -> return false
             ADD -> setVal(par[2], par[0] + par[1])
             MULTIPLY -> setVal(par[2], par[0] * par[1])
             INPUT -> setVal(par[0], readInput())
-            OUTPUT -> {outputs.add(par[0]); outputCallbacks.forEach { it.invoke(par[0]) }}
+            OUTPUT -> outputCallbacks.forEach { it.invoke(par[0]) }
             JUMP_IF_TRUE -> if (par[0] != 0L) instPointer = par[1].toInt()
             JUMP_IF_FALSE -> if (par[0] == 0L) instPointer = par[1].toInt()
             LESS_THAN -> setVal(par[2], if (par[0] < par[1]) 1L else 0L)
@@ -59,13 +57,7 @@ class Machine(
     fun addInput(input: Long) = inputs.add(input)
     fun registerOutputCallback(callback: (Long) -> Unit) = outputCallbacks.add(callback)
     private suspend fun readInput(): Long {
-
-        // If no further input exists, delay
-        while(inputs.size == inputRead){
-//            if (id == 1)
-//                println("Machine $id - Delaying, waiting for input")
-            delay(50)
-        }
+        while (inputs.size == inputRead) delay(1)
         return inputs[inputRead++]
 
     }
@@ -99,7 +91,6 @@ class Instruction(val operation: Operation, val parameters: List<Long>) {
         }
     }
 }
-
 
 enum class Operation(
     val code: Int,
