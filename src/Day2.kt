@@ -5,7 +5,7 @@ import java.io.File
 private val input = File("input-2.txt").readText()
 private const val input2 = 19690720L
 
-fun main() {
+suspend fun main() {
 //    var machine = Machine("1,0,0,0,99")
     var machine = Machine(input)
 

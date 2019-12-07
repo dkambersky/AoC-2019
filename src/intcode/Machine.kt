@@ -3,12 +3,12 @@ package intcode
 import intcode.Mode.IMMEDIATE
 import intcode.Mode.POSITION
 import intcode.Operation.*
+import kotlinx.coroutines.delay
 import java.lang.IllegalArgumentException
 import java.lang.NumberFormatException
 
 class Machine(
-    input: String,
-    private val inputs: List<Int>? = null
+    input: String, val id: Int = -1
 ) {
     private fun processInput(input: String) = input
         .splitToSequence(",")
@@ -16,30 +16,30 @@ class Machine(
         .toMutableList()
 
     var memory = processInput(input)
+    val inputs = mutableListOf<Long>()
     var inputRead = 0
     var instPointer = 0
     var outputs = mutableListOf<Long>()
+    val outputCallbacks = mutableListOf<(Long) -> Unit>()
 
-    fun run() {
+    suspend fun run() {
         while (step()) {
         }
     }
 
 
-    private fun step(): Boolean {
+    private suspend fun step(): Boolean {
         val instruction = Instruction.construct(memory, instPointer)
         val par = instruction.parameters
         val ptr = instPointer
 
+//        println("Step - $id")
         when (instruction.operation) {
-            HALT -> return false
+            HALT -> {/*println("$id halting.");*/return false }
             ADD -> setVal(par[2], par[0] + par[1])
             MULTIPLY -> setVal(par[2], par[0] * par[1])
-            INPUT -> {
-                setVal(par[0], inputs?.get(inputRead)?.toLong()!!)
-                inputRead++
-            }
-            OUTPUT -> outputs.add(par[0])
+            INPUT -> setVal(par[0], readInput())
+            OUTPUT -> {outputs.add(par[0]); outputCallbacks.forEach { it.invoke(par[0]) }}
             JUMP_IF_TRUE -> if (par[0] != 0L) instPointer = par[1].toInt()
             JUMP_IF_FALSE -> if (par[0] == 0L) instPointer = par[1].toInt()
             LESS_THAN -> setVal(par[2], if (par[0] < par[1]) 1L else 0L)
@@ -56,6 +56,19 @@ class Machine(
         memory[pos.toInt()] = value
     }
 
+    fun addInput(input: Long) = inputs.add(input)
+    fun registerOutputCallback(callback: (Long) -> Unit) = outputCallbacks.add(callback)
+    private suspend fun readInput(): Long {
+
+        // If no further input exists, delay
+        while(inputs.size == inputRead){
+//            if (id == 1)
+//                println("Machine $id - Delaying, waiting for input")
+            delay(50)
+        }
+        return inputs[inputRead++]
+
+    }
 
 }
 
