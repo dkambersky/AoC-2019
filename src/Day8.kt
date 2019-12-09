@@ -18,6 +18,7 @@ fun main() {
 
 
 fun String.toInts() = filter { it.isDigit() }.map { it.toString().toInt() }
+fun Long.toInts() = toString().filter { it.isDigit() }.map { it.toString().toInt() }
 fun List<Int>.prettyPrintStr(width: Int) = chunked(width)
     .joinToString("\n") { it.joinToString("") }
     .replace('1', '\u2588')
