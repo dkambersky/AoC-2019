@@ -26,6 +26,7 @@ class Machine(
     suspend fun run() {
         while (step()) {
         }
+
     }
 
     private suspend fun step(): Boolean {
