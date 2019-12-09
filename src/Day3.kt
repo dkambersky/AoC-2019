@@ -10,8 +10,15 @@ fun main() {
         .map { Wire.fromStr(it) }
 
     val candidates = fst.path.toSet() intersect snd.path.toSet()
-    print(candidates.minBy { it.distanceTo() }?.distanceTo())
+
+    val pairs = candidates.map { cand ->
+        fst.path.first { it == cand } to snd.path.first { it == cand }
+    }
+
+    println(candidates.minBy { it.distanceTo() }?.distanceTo())
+    println(pairs.minBy { it.combinedCosts() }?.combinedCosts())
 }
+
 
 data class Wire(val path: MutableList<Point> = mutableListOf()) {
 
@@ -31,22 +38,41 @@ data class Wire(val path: MutableList<Point> = mutableListOf()) {
         }
     }
 
-    data class Point(val x: Int = 0, val y: Int = 0) {
-        fun distanceTo(other: Point = Point()) =
-            abs(x - other.x) + abs(y - other.y)
 
-        fun inDirection(direction: Char, displacement: Int = 1) = when (direction) {
-            'R' -> Point(x + displacement, y)
-            'L' -> Point(x - displacement, y)
-            'D' -> Point(x, y - displacement)
-            'U' -> Point(x, y + displacement)
-            else -> throw IllegalArgumentException("Provide a proper direction!")
-        }
-
-
-        override fun toString(): String {
-            return "[$x,$y]"
-        }
-
-    }
 }
+
+data class Point(
+    val x: Int = 0,
+    val y: Int = 0,
+    val cost: Int = 0
+) {
+    fun distanceTo(other: Point = Point()) =
+        abs(x - other.x) + abs(y - other.y)
+
+    fun inDirection(direction: Char, displacement: Int = 1) = when (direction) {
+        'R' -> Point(x + displacement, y, cost + displacement)
+        'L' -> Point(x - displacement, y, cost + displacement)
+        'D' -> Point(x, y - displacement, cost + displacement)
+        'U' -> Point(x, y + displacement, cost + displacement)
+        else -> throw IllegalArgumentException("Provide a proper direction!")
+    }
+
+    override fun equals(other: Any?): Boolean =
+        if (other !is Point) false
+        else x == other.x && y == other.y
+
+
+    override fun toString(): String {
+        return "[$x,$y]"
+    }
+
+    override fun hashCode(): Int {
+        var result = x
+        result = 31 * result + y
+        return result
+    }
+
+
+}
+
+fun Pair<Point, Point>.combinedCosts() = first.cost + second.cost
