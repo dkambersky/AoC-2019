@@ -3,4 +3,9 @@ import java.io.File
 
 private val input = File("input-5.txt").readText()
 
-suspend fun main() = Machine(input).run()
+suspend fun main() { run() }
+
+suspend fun run() = Machine(input).apply {
+    registerOutputCallback { println(it) }
+    run()
+}

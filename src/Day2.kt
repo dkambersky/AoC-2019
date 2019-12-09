@@ -6,7 +6,6 @@ private val input = File("input-2.txt").readText()
 private const val input2 = 19690720L
 
 suspend fun main() {
-//    var machine = Machine("1,0,0,0,99")
     var machine = Machine(input)
 
     machine.memory[1] = 12
