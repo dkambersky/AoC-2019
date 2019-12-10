@@ -1,6 +1,7 @@
 import java.io.File
 import java.lang.IllegalArgumentException
 import kotlin.math.abs
+import kotlin.math.atan2
 
 private val input = File("input-3.txt").readLines()
 
@@ -15,7 +16,7 @@ fun main() {
         fst.path.first { it == cand } to snd.path.first { it == cand }
     }
 
-    println(candidates.minBy { it.distanceTo() }?.distanceTo())
+    println(candidates.minBy { it.distance() }?.distance())
     println(pairs.minBy { it.combinedCosts() }?.combinedCosts())
 }
 
@@ -46,7 +47,7 @@ data class Point(
     val y: Int = 0,
     val cost: Int = 0
 ) {
-    fun distanceTo(other: Point = Point()) =
+    fun distance(other: Point = Point()) =
         abs(x - other.x) + abs(y - other.y)
 
     fun inDirection(direction: Char, displacement: Int = 1) = when (direction) {
@@ -71,6 +72,8 @@ data class Point(
         result = 31 * result + y
         return result
     }
+
+    fun angle(other: Point) = atan2((other.x - x).toDouble(), (other.y - y).toDouble())
 
 
 }
