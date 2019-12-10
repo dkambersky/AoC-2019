@@ -11,7 +11,7 @@ fun main() {
     println(visibleFrom(station, asteroids).size)  // Part 1
 
     var i = 0
-    outer@ while (true) {
+    outer@while (true) {
         val visible = visibleFrom(station, asteroids)
         for ((_, candidates) in visible.entries) {
             if (i == 199) {
