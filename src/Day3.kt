@@ -1,5 +1,7 @@
 import java.io.File
 import java.lang.IllegalArgumentException
+import java.lang.Math.toDegrees
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 
@@ -73,9 +75,14 @@ data class Point(
         return result
     }
 
-    fun angle(other: Point) = atan2((other.x - x).toDouble(), (other.y - y).toDouble())
-
+    fun angle(other: Point): Double {
+        return (toDegrees(atan2(other.y -y , other.x - x)) + 90).let {
+            if (it < 0) it + 360 else it
+        }
+    }
 
 }
 
+
+fun atan2(y: Int, x: Int) = atan2(y.toDouble(), x.toDouble())
 fun Pair<Point, Point>.combinedCosts() = first.cost + second.cost
