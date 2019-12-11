@@ -1,7 +1,6 @@
+import Direction.*
 import java.io.File
-import java.lang.IllegalArgumentException
 import java.lang.Math.toDegrees
-import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 
@@ -60,6 +59,16 @@ data class Point(
         else -> throw IllegalArgumentException("Provide a proper direction!")
     }
 
+    fun inDirection(direction: Direction, displacement: Int = 1) = inDirection(
+        when (direction) {
+            RIGHT -> 'R'
+            LEFT -> 'L'
+            DOWN -> 'D'
+            UP -> 'U'
+        }, displacement
+    )
+
+
     override fun equals(other: Any?): Boolean =
         if (other !is Point) false
         else x == other.x && y == other.y
@@ -76,7 +85,7 @@ data class Point(
     }
 
     fun angle(other: Point): Double {
-        return (toDegrees(atan2(other.y -y , other.x - x)) + 90).let {
+        return (toDegrees(atan2(other.y - y, other.x - x)) + 90).let {
             if (it < 0) it + 360 else it
         }
     }
@@ -86,3 +95,21 @@ data class Point(
 
 fun atan2(y: Int, x: Int) = atan2(y.toDouble(), x.toDouble())
 fun Pair<Point, Point>.combinedCosts() = first.cost + second.cost
+
+enum class Direction {
+    UP, DOWN, LEFT, RIGHT;
+
+    fun rotateClockwise() = when (this) {
+        UP -> RIGHT
+        RIGHT -> DOWN
+        DOWN -> LEFT
+        LEFT -> UP
+    }
+
+    fun rotateCounterclockwise() = when (this) {
+        UP -> LEFT
+        LEFT -> DOWN
+        DOWN -> RIGHT
+        RIGHT -> UP
+    }
+}

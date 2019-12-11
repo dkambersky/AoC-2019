@@ -6,6 +6,6 @@ private val input = File("input-5.txt").readText()
 suspend fun main() { run() }
 
 suspend fun run() = Machine(input).apply {
-    registerOutputCallback { println(it) }
+    registerOutput { println(it) }
     run()
 }

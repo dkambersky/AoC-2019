@@ -32,7 +32,7 @@ private fun feedbackLoop(phases: List<Long>, inp: String = input): Deferred<Long
     )
     amplifiers.forEachIndexed { i, machine ->
         machine.addInput(phases[i])
-        machine.registerOutputCallback {
+        machine.registerOutput {
             val outMachine = if (i == 4) 0 else i + 1
             amplifiers[outMachine].addInput(it)
         }
@@ -44,7 +44,7 @@ private fun feedbackLoop(phases: List<Long>, inp: String = input): Deferred<Long
 
     // Capture outputs of last machine
     val outputs = mutableListOf<Long>()
-    jobs[4].first.registerOutputCallback { outputs.add(it) }
+    jobs[4].first.registerOutput { outputs.add(it) }
 
     // Start the process
     jobs[0].first.addInput(0)

@@ -4,7 +4,6 @@ import intcode.Mode.*
 import intcode.Operation.*
 import kotlinx.coroutines.delay
 import toInts
-import java.lang.IllegalArgumentException
 
 class Machine(
     input: String, val id: Int = -1
@@ -22,11 +21,12 @@ class Machine(
     var instPointer = 0L
     val outputCallbacks = mutableListOf<(Long) -> Unit>()
     var relativeBase = 0L
+    var isOff = false
 
     suspend fun run() {
         while (step()) {
         }
-
+        isOff = true
     }
 
     private suspend fun step(): Boolean {
@@ -35,7 +35,7 @@ class Machine(
         val ptr = instPointer
 
         when (instruction.operation) {
-            HALT -> return false
+            HALT -> { isOff = true; return false }
             ADD -> setVal(par[2], par[0] + par[1])
             MULTIPLY -> setVal(par[2], par[0] * par[1])
             INPUT -> setVal(par[0], readInput())
@@ -76,7 +76,8 @@ class Machine(
 
 
     fun addInput(input: Long) = inputs.add(input)
-    fun registerOutputCallback(callback: (Long) -> Unit) = outputCallbacks.add(callback)
+    fun registerOutput(callback: (Long) -> Unit) = outputCallbacks.add(callback)
+    fun registerOutputAsync(callback: (Long) -> Unit) = outputCallbacks.add(callback)
     private suspend fun readInput(): Long {
         while (inputs.size == inputRead) delay(1)
         return inputs[inputRead++]
