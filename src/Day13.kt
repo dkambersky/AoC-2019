@@ -4,20 +4,15 @@ import kotlinx.coroutines.launch
 
 suspend fun main() = Day13().day()
 class Day13 : Day(13) {
+    private lateinit var machine: Machine
     val inputs = mutableListOf<Int>()
     val screen = mutableMapOf<Point, Int>()
     var score = 0
     var pos = 0
     suspend fun day() {
-        Machine(input).apply {
+        machine = Machine(input)
+        machine.apply {
             outputCallbacks += { receive(it.toInt()) }
-
-            GlobalScope.launch {
-                while (true) {
-                    this@apply.addInput(readLine()!!.toLongOrNull() ?: 0)
-                }
-            }
-
             memory[0] = 2
             run()
         }
@@ -37,27 +32,39 @@ class Day13 : Day(13) {
     }
 
 
-
     private fun paint(loc: Point, type: Int) {
         screen[loc] = type
+        if (type == 3) {
+            // Move paddle under ball
+            val ballLoc = screen.asSequence().first { it.value == 4 }.key
+            machine.addInput(
+                    when {
+                        ballLoc.x > loc.x -> 1
+                        ballLoc.x < loc.x -> -1
+                        else -> 0
+                    }
+            )
+            println("Sent input to machine")
+        }
+
         draw()
     }
 
     private fun draw() {
         screen
-            .map { (it.key.x to it.key.y) to it.value }
-            .groupBy { it.first.second }
-            .map {
-                it.key to it.value.sortedBy { it.first.first }.map { it.second }
-            }.sortedBy { it.first }
-            .map {
-                it.second.map { toSymbol(it) }.joinToString("")
-            }.joinToString("\n")
-            .apply {
-                println(this)
-                println("\nScore: $score")
-                println("Paddles: ${this.count { it == '2' }}")
-            }
+                .map { (it.key.x to it.key.y) to it.value }
+                .groupBy { it.first.second }
+                .map {
+                    it.key to it.value.sortedBy { it.first.first }.map { it.second }
+                }.sortedBy { it.first }
+                .map {
+                    it.second.map { toSymbol(it) }.joinToString("")
+                }.joinToString("\n")
+                .apply {
+                    println(this)
+                    println("\nScore: $score")
+                    println("Paddles: ${this.count { it == '2' }}")
+                }
     }
 
     private fun toSymbol(num: Int) = when (num) {

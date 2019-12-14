@@ -2,3 +2,4 @@
 out
 .attach*
 *.iml
+/lib/
